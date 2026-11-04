@@ -17,7 +17,7 @@
     <div class="sign-board">
       <p class="sign-eyebrow">ITE 387 Advance Programming &middot; Mini Project</p>
       <h1 class="sign-title">Tindahan ni Aling Neneng</h1>
-      <p class="sign-tagline">Sari-Sari Store &middot; Point of Sale & Inventory System</p>
+      <p class="sign-tagline">Sari-Sari Store &middot; Point of Sale &amp; Inventory System</p>
     </div>
     
     <div class="header-controls">
@@ -37,7 +37,7 @@
     <!-- 1. Product Catalog Panel -->
     <section class="panel catalog-panel" aria-label="Product catalog">
       <div class="panel-header">
-        <div>
+        <div class="panel-title-wrap">
           <h2>Today's Stock</h2>
           <p class="panel-subtitle">Available Grocery &amp; Household Items</p>
         </div>
@@ -50,7 +50,7 @@
     </section>
 
     <!-- 2. Current Transaction / Cart Panel -->
-    <section class="panel cart-panel" aria-label="Current transaction">
+    <section class="panel cart-panel" id="cart-panel" aria-label="Current transaction">
       <div class="panel-header-simple">
         <h2>Current Sale</h2>
         <button id="clear-cart-btn" class="btn btn-subtle" title="Clear all items in cart">Clear</button>
@@ -80,6 +80,15 @@
 
   </main>
 
+  <!-- Mobile Bottom Floating Cart Bar (Appears on <= 768px when cart has items) -->
+  <aside id="mobile-cart-bar" class="mobile-cart-bar hidden" aria-label="Quick mobile cart summary">
+    <div class="mobile-cart-info">
+      <span class="mobile-cart-count" id="mobile-cart-count">0 items</span>
+      <strong class="mobile-cart-total" id="mobile-cart-total">₱0.00</strong>
+    </div>
+    <a href="#cart-panel" class="btn btn-primary btn-mobile-view-cart">View Cart 🛒</a>
+  </aside>
+
   <!-- Printable Receipt Modal Dialog -->
   <div id="receipt-modal" class="receipt-modal hidden" aria-hidden="true" role="dialog" aria-modal="true">
     <div class="receipt-backdrop"></div>
@@ -92,9 +101,9 @@
     </div>
   </div>
 
-  <!-- Axios CDN -->
+  <!-- Axios CDN (For HTTP Sync) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.2/axios.min.js"></script>
-  <!-- Main Application Entry Module -->
-  <script type="module" src="js/main.js"></script>
+  <!-- Universal Application Bundle (Runs seamlessly on file:/// and localhost) -->
+  <script src="js/app.bundle.js" defer></script>
 </body>
 </html>
