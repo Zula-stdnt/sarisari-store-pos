@@ -1,13 +1,47 @@
 # Tindahan ni Aling Neneng — Sari-Sari Store POS 🏪
 
-[![Course](https://img.shields.io/badge/Course-ITE%20387%20Advance%20Programming-blue.svg?style=flat-square)](https://github.com/Zula-stdnt/sarisari-store-pos)
-[![Project](https://img.shields.io/badge/Project-Mini%20Project-orange.svg?style=flat-square)](https://github.com/Zula-stdnt/sarisari-store-pos)
-[![JavaScript](https://img.shields.io/badge/JavaScript-ES6%2B%20Modular-F7DF1E.svg?style=flat-square&logo=javascript&logoColor=black)](https://github.com/Zula-stdnt/sarisari-store-pos)
-[![HTML5](https://img.shields.io/badge/HTML5-Semantic%20UI-E34F26.svg?style=flat-square&logo=html5&logoColor=white)](https://github.com/Zula-stdnt/sarisari-store-pos)
-[![CSS3](https://img.shields.io/badge/CSS3-Responsive%20%26%20Mobile%20First-1572B6.svg?style=flat-square&logo=css3&logoColor=white)](https://github.com/Zula-stdnt/sarisari-store-pos)
-[![License](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
+![Course](https://img.shields.io/badge/Course-ITE%20387%20Advance%20Programming-blue.svg?style=flat-square)
+![Project](https://img.shields.io/badge/Project-Mini%20Project-orange.svg?style=flat-square)
+![JavaScript](https://img.shields.io/badge/JavaScript-ES6%2B%20Modular-F7DF1E.svg?style=flat-square&logo=javascript&logoColor=black)
+![HTML5](https://img.shields.io/badge/HTML5-Semantic%20UI-E34F26.svg?style=flat-square&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-Responsive%20%26%20Mobile%20First-1572B6.svg?style=flat-square&logo=css3&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)
 
 An academic **Point of Sale (POS) and Inventory Management System** built for neighborhood grocery and sari-sari stores. Developed as a **Mini Project** for **ITE 387 Advance Programming** (3rd Year, 1st Semester).
+
+> 🌐 **Live Web Application Deployment:**  
+> **[https://zula-stdnt.github.io/sarisari-store-pos/](https://zula-stdnt.github.io/sarisari-store-pos/)**  
+> *Click the link above to test the live interactive POS system hosted on GitHub Pages.*
+
+---
+
+## 📸 User Interface Showcase
+
+### 🖥️ Desktop Experience
+
+| 1. Product Catalog & Category Filter | 2. Current Sale (Shopping Cart) |
+| :---: | :---: |
+| ![Catalog View](Desktop_WebPage_Screenshots/Screenshot%20(1327).png) | ![Shopping Cart](Desktop_WebPage_Screenshots/Screenshot%20(1328).png) |
+| *50-item catalog with live search & category filter dropdown* | *Active cart with automatic subtotal calculation & line removal* |
+
+| 3. Cashier Payment & Thermal Receipt | 4. Session Report & Master-Detail Log |
+| :---: | :---: |
+| ![Receipt Modal](Desktop_WebPage_Screenshots/Screenshot%20(1329).png) | ![Session Report](Desktop_WebPage_Screenshots/Screenshot%20(1330).png) |
+| *Cash payment validation, change calculation, and printable thermal receipt* | *Real-time sales revenue, transaction counter, and best-seller analytics* |
+
+---
+
+### 📱 Mobile-First Experience
+
+| Mobile Store Header & Filters | 1-Column Responsive Cards | Sticky Floating Cart Bar |
+| :---: | :---: | :---: |
+| ![Mobile Header](Mobile_WebPage_Screenshots/IMG_1944.PNG) | ![Mobile Cards](Mobile_WebPage_Screenshots/IMG_1945.PNG) | ![Mobile Cart Bar](Mobile_WebPage_Screenshots/IMG_1946.PNG) |
+| *Signboard with live supplier sync* | *Touch-friendly product cards* | *Real-time cart bar with 'View Cart' shortcut* |
+
+| Mobile Checkout & Cash Tender | Mobile Thermal Receipt |
+| :---: | :---: |
+| ![Mobile Checkout](Mobile_WebPage_Screenshots/IMG_1947.PNG) | ![Mobile Receipt](Mobile_WebPage_Screenshots/IMG_1948.PNG) |
+| *Clean numerical inputs & tender validation* | *Responsive customer receipt dialog with print support* |
 
 ---
 
@@ -78,33 +112,48 @@ This project strictly adheres to software development rules and design patterns 
 
 ```text
 7-27 sarisari store website/
-├── index.html          # Semantic HTML5 layout, panels, and receipt modal
-├── style.css           # Responsive stylesheet, chalkboard theme, print media rules
+├── index.html                      # Semantic HTML5 layout, panels, and receipt modal
+├── style.css                       # Responsive stylesheet, chalkboard theme, print media rules
 ├── data/
-│   └── products.json   # External supplier catalog JSON dataset
+│   └── products.json               # External supplier catalog JSON dataset
+├── Desktop_WebPage_Screenshots/    # High-resolution desktop UI screenshots (1080p)
+│   ├── Screenshot (1327).png       # Product catalog & filters
+│   ├── Screenshot (1328).png       # Active shopping cart & pricing
+│   ├── Screenshot (1329).png       # Payment tender & receipt modal
+│   └── Screenshot (1330).png       # Session analytics & transaction log
+├── Mobile_WebPage_Screenshots/     # Mobile phone UI screenshots
+│   ├── IMG_1944.PNG                # Mobile store header & filters
+│   ├── IMG_1945.PNG                # Mobile catalog cards
+│   ├── IMG_1946.PNG                # Sticky mobile floating cart bar
+│   ├── IMG_1947.PNG                # Mobile checkout & tender entry
+│   └── IMG_1948.PNG                # Mobile receipt modal & log
 ├── js/
-│   ├── app.bundle.js   # Universal browser bundle (runs with zero CORS on file:/// and localhost)
-│   ├── api.js          # Modular Axios API communication (supplier catalog sync)
-│   ├── dom.js          # Modular DOM rendering utilities & receipt generator
-│   ├── main.js         # Modular application orchestrator and event handlers
-│   ├── products.js     # Modular product catalog, factory functions, stock logic
-│   ├── transactions.js # Modular Master-Detail model, checkout, sales analytics
-│   └── utils.js        # Formatting helpers (formatPeso, formatDate) & storage
-├── .gitignore          # Git exclusion rules (.vscode, .kilocode, system files)
-└── README.md           # Portfolio-grade academic documentation
+│   ├── app.bundle.js               # Universal browser bundle (runs with zero CORS on file:/// and localhost)
+│   ├── api.js                      # Modular Axios API communication (supplier catalog sync)
+│   ├── dom.js                      # Modular DOM rendering utilities & receipt generator
+│   ├── main.js                     # Modular application orchestrator and event handlers
+│   ├── products.js                 # Modular product catalog, factory functions, stock logic
+│   ├── transactions.js             # Modular Master-Detail model, checkout, sales analytics
+│   └── utils.js                    # Formatting helpers (formatPeso, formatDate) & storage
+├── .gitignore                      # Git exclusion rules (.vscode, .kilocode, system files)
+└── README.md                       # Portfolio-grade academic documentation
 ```
 
 ---
 
 ## 🚀 Quick Start Guide
 
-This application is built for **universal compatibility** and can be run using either method below:
+This application can be accessed and run through any of the methods below:
 
-### Method 1: Instant Local Run (Zero Setup)
-Simply navigate to the project folder and double-click `index.html` to open it in Google Chrome, Microsoft Edge, or Firefox.
+### Method 1: Live Demo on GitHub Pages (Recommended)
+Visit the live hosted deployment anytime at:  
+👉 **[https://zula-stdnt.github.io/sarisari-store-pos/](https://zula-stdnt.github.io/sarisari-store-pos/)**
+
+### Method 2: Instant Local Run (Zero Setup)
+Simply navigate to the project folder and double-click `index.html` to open it directly in Google Chrome, Microsoft Edge, or Firefox.
 > The universal bundle [`js/app.bundle.js`](file:///c:/xampp/htdocs/3rd%20Year/1ST%20SEMESTER/ITE%20387%20Advance%20Programming/7-27%20sarisari%20store%20website/js/app.bundle.js) guarantees instant execution over `file:///` without CORS policy errors.
 
-### Method 2: Running via XAMPP (Apache)
+### Method 3: Running via XAMPP (Apache)
 1. Place this project folder inside your XAMPP web root directory:
    ```text
    C:\xampp\htdocs\
@@ -115,7 +164,7 @@ Simply navigate to the project folder and double-click `index.html` to open it i
    http://localhost/3rd%20Year/1ST%20SEMESTER/ITE%20387%20Advance%20Programming/7-27%20sarisari%20store%20website/
    ```
 
-### Method 3: Running via VS Code Live Server
+### Method 4: Running via VS Code Live Server
 1. Open this folder in **Visual Studio Code**.
 2. Install the **Live Server** extension (by Ritwick Dey).
 3. Right-click `index.html` and select **"Open with Live Server"**.
@@ -128,4 +177,5 @@ Simply navigate to the project folder and double-click `index.html` to open it i
 - **Degree Program:** Bachelor of Science in Information Technology (BSIT)
 - **Course:** ITE 387 Advance Programming (3rd Year, 1st Semester)
 - **Assignment:** Mini Project — Sari-Sari Store Point of Sale Web Application
+- **Live Deployment:** [https://zula-stdnt.github.io/sarisari-store-pos/](https://zula-stdnt.github.io/sarisari-store-pos/)
 - **Repository:** [https://github.com/Zula-stdnt/sarisari-store-pos](https://github.com/Zula-stdnt/sarisari-store-pos)
