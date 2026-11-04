@@ -1,222 +1,133 @@
-// transactions.js - Transaction management and in-memory storage
-// Demonstrates: Arrays, Objects, push/pop, map/filter/reduce
+// transactions.js
+// `cart` = in-progress line items for the sale currently being built.
+// `transactions` = completed, immutable sale records (schema in AGENTS.md 5.4).
+// These are intentionally two separate arrays, per spec 5.2/5.4.
 
-// In-memory transaction storage (array of transaction objects)
-const transactions = [];
+import { getProductById, decrementStock } from "./products.js";
 
-// Current cart items (array of cart item objects)
-let currentCart = [];
+export const cart = [];
+export const transactions = [];
 
-// Transaction ID counter
-let transactionIdCounter = 1;
+let nextTransactionId = 1;
 
 /**
- * Add item to current cart with stock validation
- * Demonstrates: push(), object creation, bracket notation, validation
+ * Add a line item to the cart.
+ * Fix over the original spec: validates quantity is a positive integer and
+ * does not exceed remaining stock. Returns { ok, message } instead of
+ * silently pushing bad data — the spec never said what should happen on
+ * invalid input, so this is the explicit rule.
  */
-export function addToCart(product, quantity, availableStock) {
-  // Validate stock availability
-  if (availableStock < quantity) {
-    throw new Error(`Only ${availableStock} units available in stock`);
+export function addToCart(productId, quantity) {
+  const product = getProductById(productId);
+  if (!product) {
+    return { ok: false, message: "Product not found." };
   }
-  
-  const existingItemIndex = currentCart.findIndex(
-    item => item['product_id'] === product.product_id
-  );
-  
-  if (existingItemIndex !== -1) {
-    // Item exists, check if total quantity exceeds stock
-    const newTotalQuantity = currentCart[existingItemIndex].quantity + quantity;
-    if (newTotalQuantity > availableStock) {
-      throw new Error(`Cannot add ${quantity} more. Only ${availableStock} total in stock (${currentCart[existingItemIndex].quantity} already in cart)`);
-    }
-    
-    // Update quantity
-    currentCart[existingItemIndex].quantity = newTotalQuantity;
-    currentCart[existingItemIndex].subtotal = 
-      currentCart[existingItemIndex].quantity * currentCart[existingItemIndex].product_price;
-  } else {
-    // New item, add to cart
-    const cartItem = {
-      product_id: product.product_id,
-      product_name: product.product_name,
-      product_price: product.product_price,
-      quantity: quantity,
-      subtotal: product.product_price * quantity
-    };
-    currentCart.push(cartItem);
+  if (!Number.isInteger(quantity) || quantity <= 0) {
+    return { ok: false, message: "Quantity must be a whole number greater than 0." };
   }
-  
-  return [...currentCart]; // Return copy of cart
-}
-
-/**
- * Remove item from cart
- * Demonstrates: filter(), creating new array
- */
-export function removeFromCart(productId) {
-  currentCart = currentCart.filter(item => item.product_id !== productId);
-  return [...currentCart];
-}
-
-/**
- * Clear entire cart
- * Demonstrates: array reassignment
- */
-export function clearCart() {
-  currentCart = [];
-  return [...currentCart];
-}
-
-/**
- * Get current cart
- */
-export function getCurrentCart() {
-  return [...currentCart];
-}
-
-/**
- * Calculate cart total
- * Demonstrates: reduce() for summing values
- */
-export function calculateCartTotal() {
-  return currentCart.reduce((total, item) => total + item.subtotal, 0);
-}
-
-/**
- * Complete transaction and save to memory
- * Demonstrates: push(), object creation with nested arrays, Date object
- * Returns transaction and items that need stock deduction
- */
-export function completeTransaction(amountPaid) {
-  const totalAmount = calculateCartTotal();
-  
-  if (amountPaid < totalAmount) {
-    throw new Error('Insufficient payment amount');
+  if (quantity > product.product_stock) {
+    return { ok: false, message: `Only ${product.product_stock} left in stock.` };
   }
-  
-  if (currentCart.length === 0) {
-    throw new Error('Cart is empty');
-  }
-  
-  const transaction = {
-    transactionId: transactionIdCounter++,
-    date: new Date().toISOString(),
-    items: currentCart.map(item => ({ ...item })), // Deep copy
-    totalAmount: totalAmount,
-    amountPaid: amountPaid,
-    change: amountPaid - totalAmount
-  };
-  
-  transactions.push(transaction);
-  
-  // Store items for stock deduction before clearing cart
-  const itemsForStockUpdate = [...currentCart];
-  
-  // Clear cart after successful transaction
-  currentCart = [];
-  
-  return { transaction, itemsForStockUpdate };
-}
 
-/**
- * Get all transactions
- * Demonstrates: array return, spread operator
- */
-export function getAllTransactions() {
-  return [...transactions];
-}
-
-/**
- * Get transaction by ID
- * Demonstrates: Array.find()
- */
-export function getTransactionById(transactionId) {
-  return transactions.find(t => t.transactionId === transactionId);
-}
-
-/**
- * Calculate total sales from all transactions
- * Demonstrates: reduce() for aggregation
- */
-export function calculateTotalSales() {
-  return transactions.reduce((total, transaction) => 
-    total + transaction.totalAmount, 0
-  );
-}
-
-/**
- * Find the most purchased product across all transactions
- * Demonstrates: reduce() with object accumulator, Object.entries(), sort()
- */
-export function getMostPurchasedProduct() {
-  if (transactions.length === 0) {
-    return null;
-  }
-  
-  // Build a map of product_id -> total quantity
-  const productQuantities = transactions.reduce((acc, transaction) => {
-    transaction.items.forEach(item => {
-      if (acc[item.product_id]) {
-        acc[item.product_id].quantity += item.quantity;
-      } else {
-        acc[item.product_id] = {
-          product_name: item.product_name,
-          quantity: item.quantity
-        };
-      }
-    });
-    return acc;
-  }, {});
-  
-  // Find the product with highest quantity
-  const entries = Object.entries(productQuantities);
-  
-  if (entries.length === 0) {
-    return null;
-  }
-  
-  const sorted = entries.sort((a, b) => b[1].quantity - a[1].quantity);
-  const [productId, data] = sorted[0];
-  
-  return {
-    product_id: parseInt(productId),
-    product_name: data.product_name,
-    total_quantity: data.quantity
-  };
-}
-
-/**
- * Get transactions within date range
- * Demonstrates: filter() with Date comparison
- */
-export function getTransactionsByDateRange(startDate, endDate) {
-  return transactions.filter(transaction => {
-    const transactionDate = new Date(transaction.date);
-    return transactionDate >= startDate && transactionDate <= endDate;
+  const subtotal = product.product_price * quantity;
+  cart.push({
+    product_id: product.product_id,
+    product_name: product.product_name,
+    product_price: product.product_price,
+    quantity,
+    subtotal,
   });
+
+  return { ok: true, message: `Added ${quantity} x ${product.product_name} to cart.` };
+}
+
+/** Remove one line item from the cart by its index. */
+export function removeFromCart(index) {
+  if (index < 0 || index >= cart.length) return false;
+  cart.splice(index, 1);
+  return true;
+}
+
+/** Total due for everything currently in the cart. */
+export function getCartTotal() {
+  return cart.reduce((sum, item) => sum + item.subtotal, 0);
 }
 
 /**
- * Get transaction count
+ * Attempt checkout. Validates payment >= total due (spec 5.3), decrements
+ * stock for every line item, assembles the transaction record (spec 5.4),
+ * pushes it into `transactions`, and clears the cart.
  */
-export function getTransactionCount() {
-  return transactions.length;
+export function checkout(amountPaid) {
+  if (cart.length === 0) {
+    return { ok: false, message: "Cart is empty." };
+  }
+
+  const totalAmount = getCartTotal();
+
+  if (!Number.isFinite(amountPaid) || amountPaid < totalAmount) {
+    return { ok: false, message: "Payment must be greater than or equal to the total due." };
+  }
+
+  // Re-check stock at checkout time in case the same product was added
+  // to the cart in multiple line items.
+  const combinedQuantities = {};
+  for (const item of cart) {
+    combinedQuantities[item.product_id] = (combinedQuantities[item.product_id] || 0) + item.quantity;
+  }
+  for (const [productId, qty] of Object.entries(combinedQuantities)) {
+    const product = getProductById(Number(productId));
+    if (!product || product.product_stock < qty) {
+      return { ok: false, message: `Not enough stock for ${product ? product.product_name : "an item"} anymore.` };
+    }
+  }
+
+  // Commit: decrement stock, then record the transaction.
+  for (const [productId, qty] of Object.entries(combinedQuantities)) {
+    decrementStock(Number(productId), qty);
+  }
+
+  const record = {
+    transactionId: nextTransactionId++,
+    date: new Date().toISOString(),
+    items: cart.map((item) => ({ ...item })),
+    totalAmount,
+    amountPaid,
+    change: amountPaid - totalAmount,
+  };
+
+  transactions.push(record);
+  cart.length = 0; // clear cart in place
+
+  return { ok: true, message: "Transaction completed.", record };
+}
+
+/** Sum of totalAmount across all completed transactions. */
+export function getTotalSales() {
+  return transactions.reduce((sum, t) => sum + t.totalAmount, 0);
 }
 
 /**
- * Simulate getting the latest N transactions
- * Demonstrates: slice(), negative indexing
+ * Most purchased product(s) by total quantity sold.
+ * Fix over the original spec: ties are returned as a list, not silently
+ * collapsed to whichever one `reduce` happened to see first.
  */
-export function getRecentTransactions(count = 10) {
-  return transactions.slice(-count).reverse();
-}
+export function getMostPurchasedProducts() {
+  const quantityByProduct = {};
 
-/**
- * Get total quantity of a product in current cart
- * Demonstrates: find(), optional chaining
- */
-export function getCartItemQuantity(productId) {
-  const cartItem = currentCart.find(item => item.product_id === productId);
-  return cartItem ? cartItem.quantity : 0;
+  transactions.forEach((t) => {
+    t.items.forEach((item) => {
+      quantityByProduct[item.product_id] = quantityByProduct[item.product_id] || {
+        product_name: item.product_name,
+        quantity: 0,
+      };
+      quantityByProduct[item.product_id].quantity += item.quantity;
+    });
+  });
+
+  const entries = Object.values(quantityByProduct);
+  if (entries.length === 0) return [];
+
+  const maxQuantity = entries.reduce((max, e) => Math.max(max, e.quantity), 0);
+  return entries.filter((e) => e.quantity === maxQuantity);
 }

@@ -1,148 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sari-Sari Store POS System</title>
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@600;700;800&family=Lexend:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <!-- Axios CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tindahan POS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;0,700;1,500&family=Nunito+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <header>
-        <div class="header-content">
-            <div class="header-left">
-                <div class="header-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                    </svg>
-                </div>
-                <div class="header-text">
-                    <h1>Sari-Sari Store POS</h1>
-                    <p class="tagline">Neighborhood Grocery Management</p>
-                </div>
-            </div>
-            
-            <div class="header-center">
-                <p class="status-widget" id="statusWidget">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="status-icon">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                    <span id="statusText">System Ready</span>
-                </p>
-            </div>
-            
-            <div class="header-right">
-                <button id="viewReportsBtn" class="btn-reports">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="1" x2="12" y2="23"></line>
-                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                    </svg>
-                    Reports
-                    <span class="reports-badge" id="reportsBadge">0</span>
-                </button>
-            </div>
-        </div>
-    </header>
 
-    <main class="container">
-        <!-- Products Panel -->
-        <section class="panel products-panel">
-            <div class="panel-header">
-                <h2>Product Catalog</h2>
-                <div class="search-controls">
-                    <input type="text" id="searchInput" placeholder="Search products...">
-                    <div class="price-filter">
-                        <input type="number" id="minPrice" placeholder="Min ₱" min="0">
-                        <span>-</span>
-                        <input type="number" id="maxPrice" placeholder="Max ₱" min="0">
-                        <button id="filterBtn" class="btn-secondary">Filter</button>
-                        <button id="clearFilterBtn" class="btn-secondary">Clear</button>
-                    </div>
-                </div>
-            </div>
-            <div id="productList" class="product-list"></div>
-        </section>
-
-        <!-- Cart Panel -->
-        <section class="panel cart-panel">
-            <div class="panel-header">
-                <h2>Current Transaction</h2>
-                <button id="clearCartBtn" class="btn-secondary">Clear Cart</button>
-            </div>
-            <div id="cartItems" class="cart-items"></div>
-            <div class="cart-summary">
-                <div class="total-display">
-                    <span>Total:</span>
-                    <span id="totalAmount" class="total-amount">₱0.00</span>
-                </div>
-                <div class="payment-section">
-                    <input type="number" id="paymentInput" placeholder="Amount paid (₱)" min="0" step="0.01">
-                    <div class="change-display">
-                        <span>Change:</span>
-                        <span id="changeAmount">₱0.00</span>
-                    </div>
-                </div>
-                <button id="checkoutBtn" class="btn-primary">Complete Transaction</button>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- Reports Drawer (Hidden by Default) -->
-    <aside id="reportsDrawer" class="reports-drawer hidden">
-        <div class="drawer-backdrop" id="drawerBackdrop"></div>
-        <div class="drawer-content">
-            <div class="drawer-header">
-                <h2>Session Reports</h2>
-                <button id="closeReportsBtn" class="drawer-close">&times;</button>
-            </div>
-            <div class="drawer-body">
-                <button id="refreshReportsBtn" class="btn-secondary refresh-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="23 4 23 10 17 10"></polyline>
-                        <polyline points="1 20 1 14 7 14"></polyline>
-                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-                    </svg>
-                    Refresh
-                </button>
-                <div class="report-stats">
-                    <div class="stat-card">
-                        <h3>Total Sales</h3>
-                        <p id="totalSales" class="stat-value">₱0.00</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Transactions</h3>
-                        <p id="transactionCount" class="stat-value">0</p>
-                    </div>
-                    <div class="stat-card best-seller">
-                        <h3>Best Seller</h3>
-                        <p id="bestSeller" class="stat-value">—</p>
-                    </div>
-                </div>
-                <div id="transactionsList" class="transactions-list"></div>
-            </div>
-        </div>
-    </aside>
-
-    <!-- Receipt Modal -->
-    <div id="receiptModal" class="modal">
-        <div class="modal-content receipt">
-            <button class="modal-close" id="closeReceiptBtn">&times;</button>
-            <div id="receiptContent"></div>
-            <button id="printReceiptBtn" class="btn-primary">Print Receipt</button>
-        </div>
+  <header class="store-sign">
+    <div class="sign-board">
+      <p class="sign-eyebrow">est. this session</p>
+      <h1 class="sign-title">Tindahan ni Aling Neneng</h1>
+      <p class="sign-tagline">sari-sari store &middot; point of sale</p>
     </div>
+    <p id="sync-status" class="sync-status">Syncing supplier catalog&hellip;</p>
+  </header>
 
-    <!-- Notification Toast -->
-    <div id="notification" class="notification"></div>
+  <div id="notice" class="notice-slot"></div>
 
-    <!-- Main Application Module -->
-    <script type="module" src="js/main.js"></script>
+  <main class="layout">
+
+    <section class="panel catalog-panel" aria-label="Product catalog">
+      <div class="panel-header">
+        <h2>Today's Stock</h2>
+        <input id="search-input" type="text" placeholder="Search products&hellip;" class="search-input" />
+      </div>
+      <div id="catalog" class="catalog-grid"></div>
+    </section>
+
+    <section class="panel cart-panel" aria-label="Current transaction">
+      <h2>Current Sale</h2>
+      <div id="cart" class="cart-slot"></div>
+      <div class="cart-summary">
+        <p class="total-row">Total due: <strong id="cart-total">₱0.00</strong></p>
+        <label class="paid-label" for="amount-paid">Amount paid</label>
+        <input id="amount-paid" type="number" min="0" step="0.01" placeholder="0.00" class="paid-input" />
+        <button id="checkout-btn" class="btn btn-primary btn-checkout">Complete sale</button>
+      </div>
+    </section>
+
+    <section class="panel report-panel" aria-label="Session report">
+      <h2>Session Report</h2>
+      <div id="report" class="report-summary"></div>
+      <h3 class="transactions-heading">Transaction Log</h3>
+      <div id="transactions" class="transactions-list"></div>
+    </section>
+
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.2/axios.min.js"></script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
