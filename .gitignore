@@ -1,0 +1,12 @@
+# Editor and tool directories
+.kilocode/
+.vscode/
+.idea/
+
+# OS metadata
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Logs
+*.log
