@@ -1,57 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Tindahan POS</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;0,700;1,500&family=Nunito+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tindahan ni Aling Neneng — Sari-Sari Store POS</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;0,700;1,500&family=Nunito+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
+  <!-- Signboard Header -->
   <header class="store-sign">
     <div class="sign-board">
-      <p class="sign-eyebrow">est. this session</p>
+      <p class="sign-eyebrow">ITE 387 Advance Programming &middot; Mini Project</p>
       <h1 class="sign-title">Tindahan ni Aling Neneng</h1>
-      <p class="sign-tagline">sari-sari store &middot; point of sale</p>
+      <p class="sign-tagline">Sari-Sari Store &middot; Point of Sale & Inventory System</p>
     </div>
-    <p id="sync-status" class="sync-status">Syncing supplier catalog&hellip;</p>
+    
+    <div class="header-controls">
+      <p id="sync-status" class="sync-status" aria-live="polite">Syncing supplier catalog&hellip;</p>
+      <button id="reset-session-btn" class="btn btn-secondary btn-header-reset" title="Restock all inventory and reset transaction session">
+        Restock &amp; Reset Session
+      </button>
+    </div>
   </header>
 
-  <div id="notice" class="notice-slot"></div>
+  <!-- Notification Toast Slot -->
+  <div id="notice" class="notice-slot" aria-live="polite"></div>
 
+  <!-- Main POS Grid Layout -->
   <main class="layout">
 
+    <!-- 1. Product Catalog Panel -->
     <section class="panel catalog-panel" aria-label="Product catalog">
       <div class="panel-header">
-        <h2>Today's Stock</h2>
-        <input id="search-input" type="text" placeholder="Search products&hellip;" class="search-input" />
+        <div>
+          <h2>Today's Stock</h2>
+          <p class="panel-subtitle">Available Grocery &amp; Household Items</p>
+        </div>
+        <div class="catalog-filters">
+          <div id="category-filter-slot" class="filter-slot"></div>
+          <input id="search-input" type="text" placeholder="Search products&hellip;" class="search-input" aria-label="Search products by name" />
+        </div>
       </div>
       <div id="catalog" class="catalog-grid"></div>
     </section>
 
+    <!-- 2. Current Transaction / Cart Panel -->
     <section class="panel cart-panel" aria-label="Current transaction">
-      <h2>Current Sale</h2>
+      <div class="panel-header-simple">
+        <h2>Current Sale</h2>
+        <button id="clear-cart-btn" class="btn btn-subtle" title="Clear all items in cart">Clear</button>
+      </div>
       <div id="cart" class="cart-slot"></div>
       <div class="cart-summary">
-        <p class="total-row">Total due: <strong id="cart-total">₱0.00</strong></p>
-        <label class="paid-label" for="amount-paid">Amount paid</label>
-        <input id="amount-paid" type="number" min="0" step="0.01" placeholder="0.00" class="paid-input" />
-        <button id="checkout-btn" class="btn btn-primary btn-checkout">Complete sale</button>
+        <div class="summary-line">
+          <span>Total due:</span>
+          <strong id="cart-total" class="cart-total-amount">₱0.00</strong>
+        </div>
+        <label class="paid-label" for="amount-paid">Cash tendered (₱)</label>
+        <div class="paid-input-group">
+          <span class="currency-prefix">₱</span>
+          <input id="amount-paid" type="number" min="0" step="0.01" placeholder="0.00" class="paid-input" />
+        </div>
+        <button id="checkout-btn" class="btn btn-primary btn-checkout">Complete Sale &amp; Print Receipt</button>
       </div>
     </section>
 
+    <!-- 3. Session Report & Analytics Panel -->
     <section class="panel report-panel" aria-label="Session report">
-      <h2>Session Report</h2>
+      <h2>Session Report &amp; Analytics</h2>
       <div id="report" class="report-summary"></div>
-      <h3 class="transactions-heading">Transaction Log</h3>
+      <h3 class="transactions-heading">Transaction Log (Master-Detail)</h3>
       <div id="transactions" class="transactions-list"></div>
     </section>
 
   </main>
 
+  <!-- Printable Receipt Modal Dialog -->
+  <div id="receipt-modal" class="receipt-modal hidden" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="receipt-backdrop"></div>
+    <div class="receipt-dialog">
+      <button id="close-receipt-btn" class="receipt-close-btn" aria-label="Close receipt dialog">&times;</button>
+      <div id="receipt-content-slot"></div>
+      <div class="receipt-actions">
+        <button id="print-receipt-btn" class="btn btn-primary btn-print">Print Receipt 🖨️</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Axios CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.2/axios.min.js"></script>
+  <!-- Main Application Entry Module -->
   <script type="module" src="js/main.js"></script>
 </body>
 </html>

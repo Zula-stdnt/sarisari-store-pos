@@ -1,21 +1,88 @@
 // transactions.js
-// `cart` = in-progress line items for the sale currently being built.
-// `transactions` = completed, immutable sale records (schema in AGENTS.md 5.4).
-// These are intentionally two separate arrays, per spec 5.2/5.4.
+// Transaction management implementing Master-Detail (Header-Detail) relational model,
+// Factory Functions (RULE-JS-OBJ-01), and Declarative Aggregations (RULE-JS-OBJ-03).
 
 import { getProductById, decrementStock } from "./products.js";
+import { getStorage, setStorage } from "./utils.js";
 
-export const cart = [];
-export const transactions = [];
-
-let nextTransactionId = 1;
+const STORAGE_TRANSACTIONS_KEY = "sarisari_pos_transactions_v1";
+const STORAGE_TRANS_ID_KEY = "sarisari_pos_next_trans_id_v1";
 
 /**
- * Add a line item to the cart.
- * Fix over the original spec: validates quantity is a positive integer and
- * does not exceed remaining stock. Returns { ok, message } instead of
- * silently pushing bad data — the spec never said what should happen on
- * invalid input, so this is the explicit rule.
+ * Factory Function: Cart Line Item (RULE-JS-OBJ-01)
+ */
+export const createCartItem = (product, quantity) => ({
+  product_id: product.product_id,
+  product_name: product.product_name,
+  product_price: product.product_price,
+  quantity,
+  subtotal: product.product_price * quantity,
+});
+
+/**
+ * Factory Function: Master Transaction Header (RULE-JS-OBJ-01, Master-Detail pattern)
+ */
+export const createTransactionHeader = (
+  transaction_id,
+  created_at,
+  cashier,
+  total_amount,
+  amount_paid,
+  change_amount,
+  items_count
+) => ({
+  transaction_id,
+  created_at,
+  cashier,
+  total_amount,
+  amount_paid,
+  change_amount,
+  items_count,
+});
+
+/**
+ * Factory Function: Transaction Line Detail (RULE-JS-OBJ-01, Master-Detail pattern)
+ */
+export const createTransactionDetail = (
+  detail_id,
+  transaction_id,
+  product_id,
+  product_name,
+  unit_price,
+  quantity,
+  line_total
+) => ({
+  detail_id,
+  transaction_id,
+  product_id,
+  product_name,
+  unit_price,
+  quantity,
+  line_total,
+});
+
+/** Active working cart in-memory */
+export const cart = [];
+
+/** Persistent completed transactions history */
+export const transactions = getStorage(STORAGE_TRANSACTIONS_KEY, []);
+
+/** Auto-incrementing transaction ID sequence */
+let nextTransactionId = getStorage(STORAGE_TRANS_ID_KEY, 1);
+
+/**
+ * Save transactions history to persistent storage
+ */
+export function saveTransactions() {
+  setStorage(STORAGE_TRANSACTIONS_KEY, transactions);
+  setStorage(STORAGE_TRANS_ID_KEY, nextTransactionId);
+}
+
+/**
+ * Add product to active cart with stock validation and line consolidation
+ * @param {number} productId
+ * @param {number} quantity
+ * @returns {{ ok: boolean, message: string }}
  */
 export function addToCart(productId, quantity) {
   const product = getProductById(productId);
@@ -23,111 +90,180 @@ export function addToCart(productId, quantity) {
     return { ok: false, message: "Product not found." };
   }
   if (!Number.isInteger(quantity) || quantity <= 0) {
-    return { ok: false, message: "Quantity must be a whole number greater than 0." };
-  }
-  if (quantity > product.product_stock) {
-    return { ok: false, message: `Only ${product.product_stock} left in stock.` };
+    return { ok: false, message: "Quantity must be a positive whole number." };
   }
 
-  const subtotal = product.product_price * quantity;
-  cart.push({
-    product_id: product.product_id,
-    product_name: product.product_name,
-    product_price: product.product_price,
-    quantity,
-    subtotal,
-  });
+  // Check existing quantity already in cart
+  const existingIndex = cart.findIndex((item) => item.product_id === product.product_id);
+  const currentInCart = existingIndex !== -1 ? cart[existingIndex].quantity : 0;
+  const newTotalQty = currentInCart + quantity;
+
+  if (newTotalQty > product.product_stock) {
+    return {
+      ok: false,
+      message: `Cannot add ${quantity} more. Only ${product.product_stock} in stock (${currentInCart} already in cart).`,
+    };
+  }
+
+  if (existingIndex !== -1) {
+    // Consolidate quantity on existing line
+    cart[existingIndex].quantity = newTotalQty;
+    cart[existingIndex].subtotal = cart[existingIndex].quantity * product.product_price;
+  } else {
+    // Add new line item using Factory Function (RULE-JS-OBJ-01)
+    cart.push(createCartItem(product, quantity));
+  }
 
   return { ok: true, message: `Added ${quantity} x ${product.product_name} to cart.` };
 }
 
-/** Remove one line item from the cart by its index. */
+/**
+ * Remove line item from cart by array index
+ * @param {number} index
+ * @returns {boolean}
+ */
 export function removeFromCart(index) {
   if (index < 0 || index >= cart.length) return false;
   cart.splice(index, 1);
   return true;
 }
 
-/** Total due for everything currently in the cart. */
+/**
+ * Empty the current cart
+ */
+export function clearCart() {
+  cart.length = 0;
+}
+
+/**
+ * Calculate total amount due for current cart using declarative reduce (RULE-JS-OBJ-03)
+ * @returns {number}
+ */
 export function getCartTotal() {
   return cart.reduce((sum, item) => sum + item.subtotal, 0);
 }
 
 /**
- * Attempt checkout. Validates payment >= total due (spec 5.3), decrements
- * stock for every line item, assembles the transaction record (spec 5.4),
- * pushes it into `transactions`, and clears the cart.
+ * Execute Checkout: Validates payment, decrements stock, constructs Master-Detail record,
+ * and persists the completed transaction.
+ * @param {number} amountPaid
+ * @param {string} cashier
+ * @returns {{ ok: boolean, message: string, transaction?: object }}
  */
-export function checkout(amountPaid) {
+export function checkout(amountPaid, cashier = "Aling Neneng") {
   if (cart.length === 0) {
-    return { ok: false, message: "Cart is empty." };
+    return { ok: false, message: "Current sale cart is empty." };
   }
 
   const totalAmount = getCartTotal();
 
   if (!Number.isFinite(amountPaid) || amountPaid < totalAmount) {
-    return { ok: false, message: "Payment must be greater than or equal to the total due." };
+    return {
+      ok: false,
+      message: `Insufficient payment. Total due is ₱${totalAmount.toFixed(2)}, received ₱${(amountPaid || 0).toFixed(2)}.`,
+    };
   }
 
-  // Re-check stock at checkout time in case the same product was added
-  // to the cart in multiple line items.
-  const combinedQuantities = {};
+  // Double check stock availability for all cart items before committing
   for (const item of cart) {
-    combinedQuantities[item.product_id] = (combinedQuantities[item.product_id] || 0) + item.quantity;
-  }
-  for (const [productId, qty] of Object.entries(combinedQuantities)) {
-    const product = getProductById(Number(productId));
-    if (!product || product.product_stock < qty) {
-      return { ok: false, message: `Not enough stock for ${product ? product.product_name : "an item"} anymore.` };
+    const product = getProductById(item.product_id);
+    if (!product || product.product_stock < item.quantity) {
+      return {
+        ok: false,
+        message: `Insufficient stock for ${item.product_name}. Transaction aborted.`,
+      };
     }
   }
 
-  // Commit: decrement stock, then record the transaction.
-  for (const [productId, qty] of Object.entries(combinedQuantities)) {
-    decrementStock(Number(productId), qty);
-  }
+  // 1. Commit inventory deductions
+  cart.forEach((item) => {
+    decrementStock(item.product_id, item.quantity);
+  });
 
-  const record = {
-    transactionId: nextTransactionId++,
-    date: new Date().toISOString(),
-    items: cart.map((item) => ({ ...item })),
+  const transactionId = nextTransactionId++;
+  const createdAt = new Date().toISOString();
+  const changeAmount = amountPaid - totalAmount;
+
+  // 2. Build Master Header record (RULE-JS-OBJ-01, Master-Detail pattern)
+  const header = createTransactionHeader(
+    transactionId,
+    createdAt,
+    cashier,
     totalAmount,
     amountPaid,
-    change: amountPaid - totalAmount,
+    changeAmount,
+    cart.length
+  );
+
+  // 3. Build Detail Line records (RULE-JS-OBJ-01, Master-Detail pattern)
+  const details = cart.map((item, idx) =>
+    createTransactionDetail(
+      idx + 1,
+      transactionId,
+      item.product_id,
+      item.product_name,
+      item.product_price,
+      item.quantity,
+      item.subtotal
+    )
+  );
+
+  const completedTransaction = { header, details };
+
+  // 4. Record and persist
+  transactions.push(completedTransaction);
+  saveTransactions();
+
+  // 5. Clear cart
+  clearCart();
+
+  return {
+    ok: true,
+    message: `Sale #${transactionId} completed successfully. Change: ₱${changeAmount.toFixed(2)}`,
+    transaction: completedTransaction,
   };
-
-  transactions.push(record);
-  cart.length = 0; // clear cart in place
-
-  return { ok: true, message: "Transaction completed.", record };
-}
-
-/** Sum of totalAmount across all completed transactions. */
-export function getTotalSales() {
-  return transactions.reduce((sum, t) => sum + t.totalAmount, 0);
 }
 
 /**
- * Most purchased product(s) by total quantity sold.
- * Fix over the original spec: ties are returned as a list, not silently
- * collapsed to whichever one `reduce` happened to see first.
+ * Declarative calculation of total sales revenue using reduce (RULE-JS-OBJ-03)
+ * @returns {number}
+ */
+export function getTotalSales() {
+  return transactions.reduce((sum, t) => sum + t.header.total_amount, 0);
+}
+
+/**
+ * Identify best-selling product(s) by total units sold across transaction details
+ * @returns {Array<{ product_id: number, product_name: string, quantity: number }>}
  */
 export function getMostPurchasedProducts() {
-  const quantityByProduct = {};
+  if (transactions.length === 0) return [];
 
-  transactions.forEach((t) => {
-    t.items.forEach((item) => {
-      quantityByProduct[item.product_id] = quantityByProduct[item.product_id] || {
-        product_name: item.product_name,
+  // Declarative aggregation of line quantities
+  const salesMap = transactions.reduce((acc, t) => {
+    t.details.forEach((detail) => {
+      acc[detail.product_id] = acc[detail.product_id] || {
+        product_id: detail.product_id,
+        product_name: detail.product_name,
         quantity: 0,
       };
-      quantityByProduct[item.product_id].quantity += item.quantity;
+      acc[detail.product_id].quantity += detail.quantity;
     });
-  });
+    return acc;
+  }, {});
 
-  const entries = Object.values(quantityByProduct);
+  const entries = Object.values(salesMap);
   if (entries.length === 0) return [];
 
   const maxQuantity = entries.reduce((max, e) => Math.max(max, e.quantity), 0);
   return entries.filter((e) => e.quantity === maxQuantity);
+}
+
+/**
+ * Clear all transaction records and reset ID sequence in persistent storage
+ */
+export function clearAllTransactions() {
+  transactions.length = 0;
+  nextTransactionId = 1;
+  saveTransactions();
 }

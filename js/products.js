@@ -1,83 +1,202 @@
 // products.js
-// Source of truth for the store catalog. The exact dataset from the spec is
-// preserved field-for-field; `product_stock` is an added field (not a change
-// to existing fields) so the POS can actually run out of things to sell —
-// the original spec had no inventory concept at all.
+// Source of truth for product catalog and inventory state.
+// Applies RULE-JS-OBJ-01 (Factory Functions) and RULE-JS-OBJ-03 (Declarative Array Processing).
 
-export const groceryItems = [
-  { product_id: 1, product_name: "Dried Mangoes (200g)", product_price: 180, product_stock: 24 },
-  { product_id: 2, product_name: "Banana Chips (200g)", product_price: 120, product_stock: 30 },
-  { product_id: 3, product_name: "Tablea Chocolate (250g)", product_price: 200, product_stock: 15 },
-  { product_id: 4, product_name: "Coconut Oil (500ml)", product_price: 180, product_stock: 18 },
-  { product_id: 5, product_name: "Mango Jam (250g)", product_price: 160, product_stock: 20 },
-  { product_id: 6, product_name: "Peanut Brittle (200g)", product_price: 150, product_stock: 22 },
-  { product_id: 7, product_name: "Cashew Nuts (250g)", product_price: 280, product_stock: 12 },
-  { product_id: 8, product_name: "Philippine Coffee Beans (250g)", product_price: 320, product_stock: 10 },
-  { product_id: 9, product_name: "Native Vinegar (500ml)", product_price: 120, product_stock: 25 },
-  { product_id: 10, product_name: "Philippine Honey (250ml)", product_price: 250, product_stock: 14 },
-  { product_id: 11, product_name: "Coconut Sugar (500g)", product_price: 180, product_stock: 20 },
-  { product_id: 12, product_name: "Rice Crackers (200g)", product_price: 100, product_stock: 35 },
-  { product_id: 13, product_name: "Salted Fish (Danggit, 250g)", product_price: 220, product_stock: 16 },
-  { product_id: 14, product_name: "Longganisa (Frozen, 500g)", product_price: 280, product_stock: 12 },
-  { product_id: 15, product_name: "Tocino (Frozen, 500g)", product_price: 300, product_stock: 10 },
-  { product_id: 16, product_name: "Chicharon (100g)", product_price: 120, product_stock: 28 },
-  { product_id: 17, product_name: "Pandesal Pack (12 pcs)", product_price: 80, product_stock: 40 },
-  { product_id: 18, product_name: "Native Brown Rice (1kg)", product_price: 90, product_stock: 30 },
-  { product_id: 19, product_name: "White Rice (1kg)", product_price: 70, product_stock: 50 },
-  { product_id: 20, product_name: "Corn Coffee (250g)", product_price: 150, product_stock: 18 },
-  { product_id: 21, product_name: "Coconut Water (1L)", product_price: 100, product_stock: 24 },
-  { product_id: 22, product_name: "Calamansi Juice (1L)", product_price: 120, product_stock: 22 },
-  { product_id: 23, product_name: "Guava Jelly (250g)", product_price: 160, product_stock: 15 },
-  { product_id: 24, product_name: "Bagoong (250g)", product_price: 90, product_stock: 20 },
-  { product_id: 25, product_name: "Fish Sauce (Patis, 500ml)", product_price: 110, product_stock: 26 },
-  { product_id: 26, product_name: "Soy Sauce (500ml)", product_price: 95, product_stock: 26 },
-  { product_id: 27, product_name: "Native Salt (250g)", product_price: 50, product_stock: 40 },
-  { product_id: 28, product_name: "Coconut Milk Powder (200g)", product_price: 140, product_stock: 20 },
-  { product_id: 29, product_name: "Instant Noodles (Pack of 6)", product_price: 75, product_stock: 45 },
-  { product_id: 30, product_name: "Native Cheese (Kesong Puti, 250g)", product_price: 180, product_stock: 12 },
-  { product_id: 31, product_name: "Eggs (Dozen)", product_price: 90, product_stock: 35 },
-  { product_id: 32, product_name: "Fresh Tilapia (1kg)", product_price: 160, product_stock: 14 },
-  { product_id: 33, product_name: "Fresh Bangus (Milkfish, 1kg)", product_price: 180, product_stock: 14 },
-  { product_id: 34, product_name: "Fresh Chicken (1kg)", product_price: 200, product_stock: 16 },
-  { product_id: 35, product_name: "Fresh Pork (1kg)", product_price: 280, product_stock: 12 },
-  { product_id: 36, product_name: "Fresh Beef (1kg)", product_price: 350, product_stock: 8 },
-  { product_id: 37, product_name: "Native Vegetables Basket", product_price: 250, product_stock: 10 },
-  { product_id: 38, product_name: "Bananas (1kg)", product_price: 60, product_stock: 30 },
-  { product_id: 39, product_name: "Mangoes (1kg)", product_price: 120, product_stock: 25 },
-  { product_id: 40, product_name: "Papaya (1kg)", product_price: 70, product_stock: 20 },
-  { product_id: 41, product_name: "Pineapple (Whole)", product_price: 90, product_stock: 18 },
-  { product_id: 42, product_name: "Coconut (Whole)", product_price: 50, product_stock: 30 },
-  { product_id: 43, product_name: "Native Peanuts (250g)", product_price: 100, product_stock: 25 },
-  { product_id: 44, product_name: "Camote (Sweet Potato, 1kg)", product_price: 80, product_stock: 22 },
-  { product_id: 45, product_name: "Ube Halaya (250g)", product_price: 180, product_stock: 15 },
-  { product_id: 46, product_name: "Leche Flan (Whole)", product_price: 250, product_stock: 10 },
-  { product_id: 47, product_name: "Bibingka (Whole)", product_price: 200, product_stock: 12 },
-  { product_id: 48, product_name: "Puto (Dozen)", product_price: 120, product_stock: 20 },
-  { product_id: 49, product_name: "Kakanin Sampler Pack", product_price: 300, product_stock: 8 },
-  { product_id: 50, product_name: "Native Chocolate Drink (Sikwate, 250ml)", product_price: 90, product_stock: 20 }
+import { getStorage, setStorage } from "./utils.js";
+
+const STORAGE_STOCK_KEY = "sarisari_pos_stock_v1";
+
+/**
+ * Entity Factory Function for product records (RULE-JS-OBJ-01)
+ * @param {number} product_id
+ * @param {string} product_name
+ * @param {number} product_price
+ * @param {number} product_stock
+ * @param {string} category
+ * @param {number} initial_stock
+ * @returns {object}
+ */
+export const createProduct = (
+  product_id,
+  product_name,
+  product_price,
+  product_stock,
+  category = "pantry",
+  initial_stock = product_stock
+) => ({
+  product_id,
+  product_name,
+  product_price,
+  product_stock,
+  category,
+  initial_stock,
+});
+
+/**
+ * Standard Product Categories for Display-Reference Decoupling (RULE-JS-OBJ-05)
+ */
+export const productCategories = [
+  { id: "all", name: "All Categories" },
+  { id: "snacks", name: "Snacks & Confectionery" },
+  { id: "beverages", name: "Beverages & Coffee" },
+  { id: "pantry", name: "Pantry & Condiments" },
+  { id: "bakery-grains", name: "Grains & Bakery" },
+  { id: "fresh-frozen", name: "Fresh & Frozen Produce/Meats" },
+  { id: "native-delicacies", name: "Native Delicacies (Kakanin)" },
 ];
 
-/** Find a product by id. Returns undefined if not found. */
-export function getProductById(productId) {
-  return groceryItems.find((p) => p.product_id === productId);
+/**
+ * Base Catalog Definitions
+ */
+const initialCatalogData = [
+  // Snacks
+  createProduct(1, "Dried Mangoes (200g)", 180, 24, "snacks"),
+  createProduct(2, "Banana Chips (200g)", 120, 30, "snacks"),
+  createProduct(6, "Peanut Brittle (200g)", 150, 22, "snacks"),
+  createProduct(7, "Cashew Nuts (250g)", 280, 12, "snacks"),
+  createProduct(12, "Rice Crackers (200g)", 100, 35, "snacks"),
+  createProduct(16, "Chicharon (100g)", 120, 28, "snacks"),
+  createProduct(43, "Native Peanuts (250g)", 100, 25, "snacks"),
+
+  // Beverages
+  createProduct(8, "Philippine Coffee Beans (250g)", 320, 10, "beverages"),
+  createProduct(20, "Corn Coffee (250g)", 150, 18, "beverages"),
+  createProduct(21, "Coconut Water (1L)", 100, 24, "beverages"),
+  createProduct(22, "Calamansi Juice (1L)", 120, 22, "beverages"),
+  createProduct(50, "Native Chocolate Drink (Sikwate, 250ml)", 90, 20, "beverages"),
+
+  // Pantry & Condiments
+  createProduct(3, "Tablea Chocolate (250g)", 200, 15, "pantry"),
+  createProduct(4, "Coconut Oil (500ml)", 180, 18, "pantry"),
+  createProduct(5, "Mango Jam (250g)", 160, 20, "pantry"),
+  createProduct(9, "Native Vinegar (500ml)", 120, 25, "pantry"),
+  createProduct(10, "Philippine Honey (250ml)", 250, 14, "pantry"),
+  createProduct(11, "Coconut Sugar (500g)", 180, 20, "pantry"),
+  createProduct(13, "Salted Fish (Danggit, 250g)", 220, 16, "pantry"),
+  createProduct(23, "Guava Jelly (250g)", 160, 15, "pantry"),
+  createProduct(24, "Bagoong (250g)", 90, 20, "pantry"),
+  createProduct(25, "Fish Sauce (Patis, 500ml)", 110, 26, "pantry"),
+  createProduct(26, "Soy Sauce (500ml)", 95, 26, "pantry"),
+  createProduct(27, "Native Salt (250g)", 50, 40, "pantry"),
+  createProduct(28, "Coconut Milk Powder (200g)", 140, 20, "pantry"),
+  createProduct(29, "Instant Noodles (Pack of 6)", 75, 45, "pantry"),
+  createProduct(30, "Native Cheese (Kesong Puti, 250g)", 180, 12, "pantry"),
+
+  // Grains & Bakery
+  createProduct(17, "Pandesal Pack (12 pcs)", 80, 40, "bakery-grains"),
+  createProduct(18, "Native Brown Rice (1kg)", 90, 30, "bakery-grains"),
+  createProduct(19, "White Rice (1kg)", 70, 50, "bakery-grains"),
+
+  // Fresh & Frozen
+  createProduct(14, "Longganisa (Frozen, 500g)", 280, 12, "fresh-frozen"),
+  createProduct(15, "Tocino (Frozen, 500g)", 300, 10, "fresh-frozen"),
+  createProduct(31, "Eggs (Dozen)", 90, 35, "fresh-frozen"),
+  createProduct(32, "Fresh Tilapia (1kg)", 160, 14, "fresh-frozen"),
+  createProduct(33, "Fresh Bangus (Milkfish, 1kg)", 180, 14, "fresh-frozen"),
+  createProduct(34, "Fresh Chicken (1kg)", 200, 16, "fresh-frozen"),
+  createProduct(35, "Fresh Pork (1kg)", 280, 12, "fresh-frozen"),
+  createProduct(36, "Fresh Beef (1kg)", 350, 8, "fresh-frozen"),
+  createProduct(37, "Native Vegetables Basket", 250, 10, "fresh-frozen"),
+  createProduct(38, "Bananas (1kg)", 60, 30, "fresh-frozen"),
+  createProduct(39, "Mangoes (1kg)", 120, 25, "fresh-frozen"),
+  createProduct(40, "Papaya (1kg)", 70, 20, "fresh-frozen"),
+  createProduct(41, "Pineapple (Whole)", 90, 18, "fresh-frozen"),
+  createProduct(42, "Coconut (Whole)", 50, 30, "fresh-frozen"),
+  createProduct(44, "Camote (Sweet Potato, 1kg)", 80, 18, "fresh-frozen"),
+
+  // Native Delicacies
+  createProduct(45, "Ube Halaya (250g)", 180, 15, "native-delicacies"),
+  createProduct(46, "Leche Flan (Whole)", 250, 12, "native-delicacies"),
+  createProduct(47, "Bibingka (Whole)", 200, 14, "native-delicacies"),
+  createProduct(48, "Puto (Dozen)", 120, 20, "native-delicacies"),
+  createProduct(49, "Kakanin Sampler Pack", 300, 10, "native-delicacies"),
+];
+
+/**
+ * Load and synchronize stock counts from persistent storage
+ */
+function initializeCatalog() {
+  const savedStockMap = getStorage(STORAGE_STOCK_KEY, null);
+  if (!savedStockMap) {
+    return initialCatalogData.map((item) => ({ ...item }));
+  }
+
+  return initialCatalogData.map((item) => ({
+    ...item,
+    product_stock:
+      typeof savedStockMap[item.product_id] === "number"
+        ? savedStockMap[item.product_id]
+        : item.product_stock,
+  }));
 }
 
-/** Simple case-insensitive name filter, plus optional min/max price bounds. */
-export function filterProducts(query = "", minPrice = null, maxPrice = null) {
-  const q = query.trim().toLowerCase();
-  return groceryItems.filter((p) => {
-    const matchesName = q === "" || p.product_name.toLowerCase().includes(q);
-    const matchesMin = minPrice === null || p.product_price >= minPrice;
-    const matchesMax = maxPrice === null || p.product_price <= maxPrice;
-    return matchesName && matchesMin && matchesMax;
+/** In-memory active catalog */
+export const groceryItems = initializeCatalog();
+
+/**
+ * Save current inventory stock state to persistent storage
+ */
+export function saveStockState() {
+  const stockMap = groceryItems.reduce((acc, item) => {
+    acc[item.product_id] = item.product_stock;
+    return acc;
+  }, {});
+  setStorage(STORAGE_STOCK_KEY, stockMap);
+}
+
+/**
+ * Find product by primary key ID (RULE-JS-OBJ-03 declarative query)
+ * @param {number} productId
+ * @returns {object|undefined}
+ */
+export function getProductById(productId) {
+  return groceryItems.find((p) => p.product_id === Number(productId));
+}
+
+/**
+ * Declarative filtering by search keyword and category (RULE-JS-OBJ-03)
+ * @param {string} query
+ * @param {string} categoryId
+ * @returns {Array<object>}
+ */
+export function filterProducts(query = "", categoryId = "all") {
+  const cleanQuery = query.trim().toLowerCase();
+
+  return groceryItems.filter((product) => {
+    const matchesCategory =
+      categoryId === "all" || product.category === categoryId;
+    const matchesQuery =
+      cleanQuery === "" ||
+      product.product_name.toLowerCase().includes(cleanQuery);
+    return matchesCategory && matchesQuery;
   });
 }
 
-/** Decrease stock for a product after a successful checkout. Never goes negative. */
+/**
+ * Decrement stock and synchronize with persistent storage
+ * @param {number} productId
+ * @param {number} quantity
+ * @returns {boolean}
+ */
 export function decrementStock(productId, quantity) {
   const product = getProductById(productId);
-  if (!product) return false;
-  if (product.product_stock < quantity) return false;
+  if (!product || product.product_stock < quantity) {
+    return false;
+  }
   product.product_stock -= quantity;
+  saveStockState();
   return true;
+}
+
+/**
+ * Reset all product inventory stock back to initial counts
+ */
+export function restockAllProducts() {
+  initialCatalogData.forEach((initial) => {
+    const product = getProductById(initial.product_id);
+    if (product) {
+      product.product_stock = initial.initial_stock;
+    }
+  });
+  saveStockState();
 }
