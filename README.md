@@ -8,7 +8,7 @@
 <a id="badge-level"><img src="https://img.shields.io/badge/Academic%20Level-3rd%20Year%20%7C%201st%20Semester-0284c7.svg?style=for-the-badge" alt="Academic Level"></a>
 <a id="badge-arch"><img src="https://img.shields.io/badge/Architecture-Vanilla%20ES6%2B%20%7C%20Progressive%20Enhancement-10b981.svg?style=for-the-badge&logo=javascript&logoColor=white" alt="Architecture"></a>
 <a href="https://zula-stdnt.github.io/sarisari-store-pos/"><img src="https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-brightgreen?style=for-the-badge&logo=githubpages&logoColor=white" alt="Live Demo"></a>
-<a href="https://github.com/Zula-stdnt/sarisari-store-pos/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" alt="License: MIT"></a>
+<a href="https://github.com/Zula-stdnt/sarisari-store-pos?tab=MIT-1-ov-file#readme"><img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" alt="License: MIT"></a>
 <a id="badge-status"><img src="https://img.shields.io/badge/Status-Completed%20%26%20Optimized-success.svg?style=for-the-badge" alt="Status"></a>
 
 <p align="center">
@@ -272,7 +272,7 @@ git push origin main
 
 ## <a id="license"></a>📄 License
 
-This project is licensed under the **MIT License** — see the [LICENSE](https://github.com/Zula-stdnt/sarisari-store-pos/blob/main/LICENSE) file for complete details.
+This project is licensed under the **MIT License** — see the [LICENSE](https://github.com/Zula-stdnt/sarisari-store-pos?tab=MIT-1-ov-file#readme) tab for complete details.
 
 ```text
 MIT License
