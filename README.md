@@ -179,3 +179,9 @@ Simply navigate to the project folder and double-click `index.html` to open it d
 - **Assignment:** Mini Project — Sari-Sari Store Point of Sale Web Application
 - **Live Deployment:** [https://zula-stdnt.github.io/sarisari-store-pos/](https://zula-stdnt.github.io/sarisari-store-pos/)
 - **Repository:** [https://github.com/Zula-stdnt/sarisari-store-pos](https://github.com/Zula-stdnt/sarisari-store-pos)
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
